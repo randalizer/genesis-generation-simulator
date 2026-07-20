@@ -1,0 +1,9 @@
+[project]
+name = "genesis-generation-simulator"
+version = "0.1.0"
+description = "Configurable Genesis population simulation engine"
+requires-python = ">=3.12"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

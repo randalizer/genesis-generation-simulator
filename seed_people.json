@@ -1,0 +1,14 @@
+[
+    {
+        "id": "P00001",
+        "name": "Adam",
+        "sex": "M",
+        "birth_year": 0
+    },
+    {
+        "id": "P00002",
+        "name": "Eve",
+        "sex": "F",
+        "birth_year": 0
+    }
+]
