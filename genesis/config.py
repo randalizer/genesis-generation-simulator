@@ -1,10 +1,9 @@
 """
 Configuration loader.
 """
-
+from pathlib import Path
 from dataclasses import dataclass
 import json
-from pathlib import Path
 
 
 @dataclass(slots=True)
@@ -26,10 +25,12 @@ class Config:
     random_seed: int
 
 
-def load_config(path: Path) -> Config:
+def load_config(path: str | Path) -> Config:
     """
-    Load configuration from JSON file.
+    Load configuration from a JSON file.
     """
+
+    path = Path(path)
 
     with path.open("r", encoding="utf-8") as infile:
         data = json.load(infile)
