@@ -1,17 +1,18 @@
 {
     "simulation_end_year": 130,
+
     "first_birth_year": 1,
     "birth_interval": 2,
 
-    "minimum_childbearing_age": 17,
-    "maximum_childbearing_age": 25,
+    "reproduction_mode": "random",
 
-    "childbearing_mode": "deterministic",
-    "default_childbearing_age": 21,
+    "minimum_reproduction_start_age": 17,
+    "maximum_reproduction_start_age": 25,
+    "default_reproduction_start_age": 20,
 
-    "pairing_strategy": "oldest",
+    "pairing_strategy": "oldest_first",
 
     "male_birth_probability": 0.5,
 
-    "random_seed": 1
+    "random_seed": 42
 }

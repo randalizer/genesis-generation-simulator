@@ -1,22 +1,24 @@
 """
 Configuration loader.
 """
-from pathlib import Path
+
 from dataclasses import dataclass
 import json
+from pathlib import Path
 
 
 @dataclass(slots=True)
 class Config:
     simulation_end_year: int
+
     first_birth_year: int
     birth_interval: int
 
-    minimum_childbearing_age: int
-    maximum_childbearing_age: int
+    reproduction_mode: str
 
-    childbearing_mode: str
-    default_childbearing_age: int
+    minimum_reproduction_start_age: int
+    maximum_reproduction_start_age: int
+    default_reproduction_start_age: int
 
     pairing_strategy: str
 

@@ -40,6 +40,17 @@ class Simulation:
             else "F"
         )
 
+        # Assign the child's reproduction start age.
+        if self.config.reproduction_mode == "fixed":
+            reproduction_start_age = (
+                self.config.default_reproduction_start_age
+            )
+        else:
+            reproduction_start_age = random.randint(
+                self.config.minimum_reproduction_start_age,
+                self.config.maximum_reproduction_start_age,
+            )
+
         return Person(
             id=person_id,
             name=name,
@@ -47,6 +58,7 @@ class Simulation:
             birth_year=self.current_year,
             father_id="P00001",
             mother_id="P00002",
+            reproduction_start_age=reproduction_start_age,
         )
 
     def run(self) -> None:
@@ -61,17 +73,26 @@ class Simulation:
         for year in range(end_year + 1):
             self.current_year = year
 
-            # First birth only.
-            if year == self.config.first_birth_year:
+            births_this_year: list[Person] = []
+
+            # Births begin at first_birth_year and repeat every birth_interval years.
+            if (
+                year >= self.config.first_birth_year
+                and (year - self.config.first_birth_year)
+                % self.config.birth_interval
+                == 0
+            ):
                 child = self.create_child()
                 self.population[child.id] = child
+                births_this_year.append(child)
 
+            print(f"Year {year:3}  Population: {self.population_count}")
+
+            for child in births_this_year:
                 sex = "Male" if child.sex == "M" else "Female"
-
-                print(f"    Birth: {child.name} ({sex})")
-
-            print(
-                f"Year {year:3}  Population: {self.population_count}"
-            )
+                print(
+                    f"    Birth: {child.name} ({sex}) "
+                    f"[Reproduction Start Age: {child.reproduction_start_age}]"
+    )
 
         print("\nSimulation complete.")
