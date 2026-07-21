@@ -40,7 +40,6 @@ class Simulation:
             else "F"
         )
 
-        # Assign the child's reproduction start age.
         if self.config.reproduction_mode == "fixed":
             reproduction_start_age = (
                 self.config.default_reproduction_start_age
@@ -75,7 +74,7 @@ class Simulation:
 
             births_this_year: list[Person] = []
 
-            # Births begin at first_birth_year and repeat every birth_interval years.
+            # Adam and Eve continue having children.
             if (
                 year >= self.config.first_birth_year
                 and (year - self.config.first_birth_year)
@@ -92,7 +91,20 @@ class Simulation:
                 sex = "Male" if child.sex == "M" else "Female"
                 print(
                     f"    Birth: {child.name} ({sex}) "
-                    f"[Reproduction Start Age: {child.reproduction_start_age}]"
-    )
+                    f"[Reproduction Start Age: "
+                    f"{child.reproduction_start_age}]"
+                )
+
+            # Show when someone first becomes eligible to reproduce.
+            for person in self.population.values():
+                if (
+                    person.reproduction_start_age is not None
+                    and person.age(year)
+                    == person.reproduction_start_age
+                ):
+                    print(
+                        f"    Eligible: {person.name} "
+                        f"(Age {person.age(year)})"
+                    )
 
         print("\nSimulation complete.")

@@ -21,5 +21,21 @@ class Person:
     alive: bool = True
 
     # Age (in years) when this person begins reproducing.
-    # Adam and Eve are treated as special cases and do not use this value.
+    # Adam and Eve are special cases and do not use this value.
     reproduction_start_age: int | None = None
+
+    def age(self, current_year: int) -> int:
+        """Return the person's age in simulation years."""
+
+        return current_year - self.birth_year
+
+    def can_reproduce(self, current_year: int) -> bool:
+        """
+        Return True if this person has reached their
+        reproduction start age.
+        """
+
+        if self.reproduction_start_age is None:
+            return False
+
+        return self.age(current_year) >= self.reproduction_start_age
