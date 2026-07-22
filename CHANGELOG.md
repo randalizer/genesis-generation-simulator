@@ -45,3 +45,26 @@
   - First child after pairing
   - Birth interval
   - End of reproductive years
+
+  ## [0.6.0] - 2026-07-21
+
+### Added
+- Added the initial simulation model documentation.
+- Defined the core architectural concepts of the simulator.
+- Documented the responsibilities of the primary domain objects:
+  - Simulation
+  - Person
+  - Family
+- Added project design principles to guide future development.
+- Added a roadmap section for future life events and simulation enhancements.
+
+### Changed
+- Refined the simulation terminology to better reflect the Genesis narrative.
+- Adopted **Marriage** as the preferred term over **Pairing**.
+- Established **Family** as the central long-lived entity for modeling generational growth.
+- Clarified that data should be owned by the object it logically belongs to (Person vs. Family).
+
+### Notes
+- This release contains design and documentation improvements only.
+- No simulation behavior or functionality changed.
+- These architectural decisions establish the foundation for implementing multi-generational family simulation in future releases.
