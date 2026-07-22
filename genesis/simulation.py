@@ -23,21 +23,21 @@ class Simulation:
             int(person.id[1:]) for person in self.population.values()
         )
 
-        adam_eve_family = Family(
-            id="F00001",
-            husband_id="P00001",
-            wife_id="P00002",
-            marriage_year=0,
+        self.add_family(
+            Family(
+                id="F00001",
+                husband_id="P00001",
+                wife_id="P00002",
+                marriage_year=0,
+            )
         )
-
-        self.families[adam_eve_family.id] = adam_eve_family
 
     @property
     def population_count(self) -> int:
         """Return the current population."""
         return len(self.population)
 
-    def create_child(self) -> Person:
+    def create_child(self, family: Family) -> Person:
         """Create one child for Adam and Eve."""
 
         self.next_person_number += 1
@@ -66,13 +66,25 @@ class Simulation:
             name=name,
             sex=sex,
             birth_year=self.current_year,
-            father_id="P00001",
-            mother_id="P00002",
+            father_id=family.husband_id,
+            mother_id=family.wife_id,
         )
 
-        self.families["F00001"].add_child(child.id)
+        family.add_child(child.id)
 
         return child
+    
+    def get_family(self, family_id: str) -> Family:
+        """Return a family by its ID."""
+        return self.families[family_id]
+    
+    def add_family(self, family: Family) -> None:
+        """Add a family to the simulation."""
+        self.families[family.id] = family
+
+    def add_person(self, person: Person) -> None:
+        """Add a person to the simulation."""
+        self.population[person.id] = person
     
     def run(self) -> None:
         """Run the simulation."""
@@ -88,16 +100,16 @@ class Simulation:
 
             births_this_year: list[Person] = []
 
-            # Adam and Eve continue having children.
-            if (
-                year >= self.config.first_birth_year
-                and (year - self.config.first_birth_year)
-                % self.config.birth_interval
-                == 0
-            ):
-                child = self.create_child()
-                self.population[child.id] = child
-                births_this_year.append(child)
+            for family in self.families.values():
+                if (
+                    year >= self.config.first_birth_year
+                    and (year - self.config.first_birth_year)
+                    % self.config.birth_interval
+                    == 0
+                ):
+                    child = self.create_child(family)
+                    self.add_person(child)
+                    births_this_year.append(child)
 
             print(f"Year {year:3}  Population: {self.population_count}")
 

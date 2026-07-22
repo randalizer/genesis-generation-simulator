@@ -86,3 +86,19 @@
 ### Notes
 - This release introduces the foundation for family-based simulation while preserving the existing simulation behavior.
 - No changes were made to the simulation output or reproduction logic.
+
+## [0.8.0] - 2026-07-22
+
+### Added
+- Added `Simulation.add_family()` to centralize family management.
+- Added `Simulation.add_person()` to centralize population management.
+
+### Changed
+- Refactored `create_child()` to accept a `Family` parameter.
+- Updated the simulation loop to process families instead of relying on a hardcoded founding family.
+- Removed the remaining hardcoded family dependency from the simulation engine.
+
+### Notes
+- This release focuses on internal refactoring only.
+- Simulation behavior and output remain unchanged.
+- The simulator is now prepared to support multiple families in future releases.
