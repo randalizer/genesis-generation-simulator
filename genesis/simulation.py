@@ -6,6 +6,7 @@ import random
 
 from genesis.config import Config
 from genesis.person import Person
+from genesis.family import Family
 
 
 class Simulation:
@@ -14,12 +15,22 @@ class Simulation:
     def __init__(self, config: Config, population: dict[str, Person]) -> None:
         self.config = config
         self.population = population
+        self.families: dict[str, Family] = {}
         self.current_year = 0
 
         # Determine the next available person number.
         self.next_person_number = max(
             int(person.id[1:]) for person in self.population.values()
         )
+
+        adam_eve_family = Family(
+            id="F00001",
+            husband_id="P00001",
+            wife_id="P00002",
+            marriage_year=0,
+        )
+
+        self.families[adam_eve_family.id] = adam_eve_family
 
     @property
     def population_count(self) -> int:
@@ -50,16 +61,19 @@ class Simulation:
                 self.config.maximum_reproduction_start_age,
             )
 
-        return Person(
+        child = Person(
             id=person_id,
             name=name,
             sex=sex,
             birth_year=self.current_year,
             father_id="P00001",
             mother_id="P00002",
-            reproduction_start_age=reproduction_start_age,
         )
 
+        self.families["F00001"].add_child(child.id)
+
+        return child
+    
     def run(self) -> None:
         """Run the simulation."""
 

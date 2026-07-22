@@ -68,3 +68,21 @@
 - This release contains design and documentation improvements only.
 - No simulation behavior or functionality changed.
 - These architectural decisions establish the foundation for implementing multi-generational family simulation in future releases.
+
+## [0.7.0] - 2026-07-22
+
+### Added
+- Added the new `Family` class to represent the family unit.
+- Added support for tracking children within a family.
+- Added `add_child()` to encapsulate child management.
+- Added `child_count` property for family statistics.
+
+### Changed
+- Updated the simulation engine to maintain a collection of families.
+- Created the initial family for Adam and Eve during simulation initialization.
+- Updated child creation to register each child with its family.
+- Improved the project architecture by separating individual (`Person`) data from family (`Family`) data.
+
+### Notes
+- This release introduces the foundation for family-based simulation while preserving the existing simulation behavior.
+- No changes were made to the simulation output or reproduction logic.
