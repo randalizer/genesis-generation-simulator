@@ -20,6 +20,8 @@ class Config:
     maximum_reproduction_start_age: int
     default_reproduction_start_age: int
 
+    minimum_marriage_age: int
+
     pairing_strategy: str
 
     male_birth_probability: float

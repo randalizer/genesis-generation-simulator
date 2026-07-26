@@ -1,5 +1,5 @@
 {
-    "simulation_end_year": 10,
+    "simulation_end_year": 130,
 
     "first_birth_year": 1,
     "birth_interval": 2,
@@ -10,9 +10,11 @@
     "maximum_reproduction_start_age": 25,
     "default_reproduction_start_age": 20,
 
+    "minimum_marriage_age": 18,
+
     "pairing_strategy": "oldest_first",
 
-    "male_birth_probability": 0.5,
+    "male_birth_probability": 0.4,
 
     "random_seed": 42
 }

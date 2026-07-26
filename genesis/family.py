@@ -18,6 +18,12 @@ class Family:
 
     marriage_year: int
 
+    reproduction_start_age: int | None = None
+
+    first_birth_year: int | None = None
+
+    birth_interval: int | None = None
+
     children: list[str] = field(default_factory=list)
 
     @property

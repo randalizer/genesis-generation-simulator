@@ -197,3 +197,12 @@ The goal of the Genesis Generation Simulator is to provide a transparent and
 configurable framework for exploring population growth in early Genesis while
 clearly distinguishing between Biblical facts, modeling decisions, and simulation
 assumptions.
+
+### First Generation Marriages
+
+The simulation begins with Adam and Eve as the only founding family. As a result,
+their children must marry one another in order for the population to continue.
+
+For the initial implementation, sibling marriages are permitted. Future versions
+of the simulator may introduce configurable marriage rules to support different
+starting populations or genealogical constraints.

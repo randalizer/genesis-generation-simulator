@@ -102,3 +102,47 @@
 - This release focuses on internal refactoring only.
 - Simulation behavior and output remain unchanged.
 - The simulator is now prepared to support multiple families in future releases.
+
+# Changelog
+
+## [v0.9.0] - Sprint 9
+
+### Added
+
+* Dynamic family creation during simulation.
+* Support for second-generation family formation.
+* Family count included in the simulation summary.
+* Methods supporting family creation and marriage candidate selection.
+
+### Changed
+
+* Refactored the simulation architecture to separate responsibilities between `Simulation`, `Person`, and `Family`.
+* Shifted project design from a Genesis-specific simulation toward a reusable population simulation engine.
+* Established that `Family` is responsible for family behavior, while `Simulation` coordinates yearly events.
+* Clarified that future individual preferences and personality traits belong to `Person`.
+
+### Architecture
+
+* Established the guiding principle: **Store facts; calculate decisions.**
+* Defined ownership of responsibilities:
+
+  * `Simulation` advances time and coordinates events.
+  * `Person` represents an individual and will eventually own preferences and personality.
+  * `Family` represents the relationship between spouses and owns family-level behavior.
+* Identified that future reproduction logic should be implemented as family behavior rather than simulation logic.
+
+### Notes
+
+Sprint 9 became an architecture-focused sprint rather than a feature-focused sprint.
+
+The most significant accomplishment was defining a long-term architecture that supports future enhancements without requiring major redesign. This foundation prepares the simulator for features such as:
+
+* Personality traits
+* Family planning behavior
+* Widowhood
+* Remarriage
+* Adoption
+* Configurable reproduction models
+* Additional family lifecycle events
+
+The simulator now supports creating new families beyond the founding family, marking the transition from a single-family simulation to a true multi-generational population simulator.

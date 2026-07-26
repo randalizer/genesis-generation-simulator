@@ -4,6 +4,7 @@ Simulation engine for the Genesis Generation Simulator.
 
 import random
 
+from genesis import family
 from genesis.config import Config
 from genesis.person import Person
 from genesis.family import Family
@@ -31,6 +32,11 @@ class Simulation:
                 marriage_year=0,
             )
         )
+
+        self.next_family_number = max(
+            int(family.id[1:]) for family in self.families.values()
+        )
+        
 
     @property
     def population_count(self) -> int:
@@ -85,7 +91,92 @@ class Simulation:
     def add_person(self, person: Person) -> None:
         """Add a person to the simulation."""
         self.population[person.id] = person
+
+    def eligible_for_marriage(self) -> list[Person]:
+        """Return all people eligible for marriage."""
+
+        eligible: list[Person] = []
+
+        for person in self.population.values():
+            age = self.current_year - person.birth_year
+
+            if age < self.config.minimum_marriage_age:
+                continue
+            if self.is_married(person):
+                continue
+
+            eligible.append(person)
+
+        return eligible
     
+    def eligible_males(self) -> list[Person]:
+        """Return all eligible unmarried males."""
+
+        return [
+            person
+            for person in self.eligible_for_marriage()
+                if person.sex == "M"
+        ]
+
+    def eligible_females(self) -> list[Person]:
+        """Return all eligible unmarried females."""
+
+        return [
+            person
+            for person in self.eligible_for_marriage()
+            if person.sex == "F"
+        ]
+    
+    def find_family_candidates(self) -> list[tuple[Person, Person]]:
+        """Return the list of marriages for the current year."""
+
+        males = sorted(
+            self.eligible_males(),
+            key=lambda person: person.birth_year
+        )
+
+        females = sorted(
+            self.eligible_females(),
+            key=lambda person: person.birth_year
+        )
+
+        marriages: list[tuple[Person, Person]] = []
+
+        for husband, wife in zip(males, females):
+            marriages.append((husband, wife))
+
+        return marriages
+
+    def is_married(self, person: Person) -> bool:
+        """Return True if the person is already a spouse in a family."""
+
+        for family in self.families.values():
+            if (
+                family.husband_id == person.id
+                or family.wife_id == person.id
+            ):
+                return True
+
+        return False
+    
+    def create_family(
+        self,
+        husband: Person,
+        wife: Person,
+    ) -> Family:
+        """Create a new family."""
+
+        self.next_family_number += 1
+
+        family = Family(
+            id=f"F{self.next_family_number:05d}",
+            husband_id=husband.id,
+            wife_id=wife.id,
+            marriage_year=self.current_year,
+        )
+
+        return family
+
     def run(self) -> None:
         """Run the simulation."""
 
@@ -133,4 +224,18 @@ class Simulation:
                         f"(Age {person.age(year)})"
                     )
 
+            candidates = self.find_family_candidates()
+            print(f"Year {year}: {len(candidates)} family candidates")
+            for husband, wife in candidates:
+                family = self.create_family(husband, wife)
+                self.add_family(family)
+                print(
+                   f"Created family {family.id}: "
+                   f"{husband.name} + {wife.name}"
+                )
+
         print("\nSimulation complete.")
+        print(
+            f"Total population: {self.population_count}  "
+            f"Total families: {len(self.families)}"
+        )

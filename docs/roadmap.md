@@ -46,3 +46,24 @@ may be incorporated in future versions.
 - Infertility
 - Lifespan and death
 - Migration between communities
+
+# Future Roadmap
+
+## Planned Features
+- Multiple pairing strategies
+- Pregnancy
+- Widowhood
+- Adoption
+- Mortality
+- Multiple seed populations
+
+## Architectural Improvements
+- Move seed data creation out of Simulation.__init__()
+- Centralize ID generation
+- Separate reporting from simulation logic
+- Replace print statements with a reporting interface
+
+## Ideas Under Consideration
+- Compatibility scoring
+- Geographic regions
+- Household model
