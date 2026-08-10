@@ -11,10 +11,13 @@
     "default_reproduction_start_age": 20,
 
     "minimum_marriage_age": 18,
+    "preferred_husband_age_min": 20,
+    "preferred_wife_age_min": 17,
+    "maximum_age_difference": 9,
 
     "pairing_strategy": "oldest_first",
 
-    "male_birth_probability": 0.4,
+    "male_birth_probability": 0.5,
 
     "random_seed": 42
 }

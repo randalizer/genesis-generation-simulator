@@ -1,42 +1,62 @@
 Genesis Generation Simulator Roadmap
 
-Phase 1 - Foundation
-✔ Project structure
-✔ Configuration
-✔ Population model
-✔ Simulation engine
+## Current focus
+- Refine family formation and pairing rules.
+- Clarify birth scheduling and reproduction assumptions.
+- Prepare the project for a configurable rules-based simulation engine.
 
-Phase 2 - Population Growth
-✔ Adam and Eve reproduction
-□ Multi-generation reproduction
-□ Pairing engine
-□ Family relationships
+## Phase 1 - Foundation
+- [x] Project structure
+- [x] Configuration
+- [x] Population model
+- [x] Simulation engine
 
-Phase 3 - Reporting
-□ Population statistics
-□ Generation reports
-□ Family tree reports
-□ Export to CSV
+## Phase 2 - Population Growth
+- [x] Adam and Eve reproduction
+- [ ] Multi-generation reproduction
+- [ ] Pairing engine
+- [ ] Family relationships
 
-Phase 4 - Advanced Modeling
-□ Lifespans
-□ Mortality
-□ Alternative pairing strategies
-□ Configurable assumptions
+## Phase 3 - Reporting
+- [ ] Population statistics
+- [ ] Generation reports
+- [ ] Family tree reports
+- [ ] Export to CSV
 
-Phase 5 - Visualization
-□ Family tree
-□ Population graphs
-□ Timeline
+## Phase 4 - Advanced Modeling
+- [ ] Lifespans
+- [ ] Mortality
+- [ ] Alternative pairing strategies
+- [ ] Configurable assumptions
 
-## Future Enhancements
+## Phase 5 - Visualization
+- [ ] Family tree
+- [ ] Population graphs
+- [ ] Timeline
 
-These concepts are intentionally outside the scope of the initial simulator but
-may be incorporated in future versions.
+## Planned Features
+These items are planned for future work once the core population and pairing
+model are stable.
 
+- Multiple pairing strategies
+- Pregnancy
+- Widowhood
+- Adoption
+- Mortality
+- Multiple seed populations
+- Compatibility scoring
+- Geographic regions
+- Household model
+
+## Architectural improvements
+- Move seed data creation out of `Simulation.__init__()`
+- Centralize ID generation
+- Separate reporting from simulation logic
+- Replace `print` statements with a reporting interface
+
+## Ideas Under consideration
 - Engagement
 - Marriage ceremony
-- Pregnancy
 - Birth events
 - Weaning
 - Adoption
@@ -46,24 +66,3 @@ may be incorporated in future versions.
 - Infertility
 - Lifespan and death
 - Migration between communities
-
-# Future Roadmap
-
-## Planned Features
-- Multiple pairing strategies
-- Pregnancy
-- Widowhood
-- Adoption
-- Mortality
-- Multiple seed populations
-
-## Architectural Improvements
-- Move seed data creation out of Simulation.__init__()
-- Centralize ID generation
-- Separate reporting from simulation logic
-- Replace print statements with a reporting interface
-
-## Ideas Under Consideration
-- Compatibility scoring
-- Geographic regions
-- Household model

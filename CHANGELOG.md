@@ -1,27 +1,110 @@
 # Changelog
 
-## v0.1.0
+## [v0.10.0] - Sprint 10
 
-- Initial project structure.
-- Configuration loader.
-- Seed population loader.
-- Person dataclass.
-
-## v0.2.0
-- Create a Simulation class that advances through the years.
-
-## v0.3.0
-- Adam and Eve have children.
-
-## [0.4.0] - 2026-07-21
+### Added
+- New rule-based marriage pairing engine in `genesis/pairing.py`.
+- Support for `maximum_age_difference` as the primary spouse age-gap constraint.
 
 ### Changed
-- Renamed childbearing configuration to reproduction terminology.
-- Added reproduction_start_age to the Person model.
-- Assigned a reproduction start age when each child is created.
+- Simplified config schema and removed gender-specific max-age caps.
+- Integrated pairing logic into simulation via `PairingEngine.from_config()`.
 
-### Internal
-- Improved configuration naming for clarity and consistency.
+### Notes
+- Sprint 10 focused on marriage pairing architecture and eligibility rules.
+- The simulator now supports maximum age gap constraints while keeping future remarriage rules open for death/remarriage behavior.
+
+## [v0.9.0] - Sprint 9
+
+### Added
+- Dynamic family creation during simulation.
+- Support for second-generation family formation.
+- Family count included in the simulation summary.
+- Methods supporting family creation and marriage candidate selection.
+
+### Changed
+- Refactored the simulation architecture to separate responsibilities between `Simulation`, `Person`, and `Family`.
+- Shifted project design from a Genesis-specific simulation toward a reusable population simulation engine.
+- Established that `Family` is responsible for family behavior, while `Simulation` coordinates yearly events.
+- Clarified that future individual preferences and personality traits belong to `Person`.
+
+### Architecture
+- Established the guiding principle: **Store facts; calculate decisions.**
+- Defined ownership of responsibilities:
+  - `Simulation` advances time and coordinates events.
+  - `Person` represents an individual and will eventually own preferences and personality.
+  - `Family` represents the relationship between spouses and owns family-level behavior.
+- Identified that future reproduction logic should be implemented as family behavior rather than simulation logic.
+
+### Notes
+Sprint 9 became an architecture-focused sprint rather than a feature-focused sprint.
+
+The most significant accomplishment was defining a long-term architecture that supports future enhancements without requiring major redesign. This foundation prepares the simulator for features such as:
+- Personality traits
+- Family planning behavior
+- Widowhood
+- Remarriage
+- Adoption
+- Configurable reproduction models
+- Additional family lifecycle events
+
+The simulator now supports creating new families beyond the founding family, marking the transition from a single-family simulation to a true multi-generational population simulator.
+
+## [0.8.0] - 2026-07-22
+
+### Added
+- Added `Simulation.add_family()` to centralize family management.
+- Added `Simulation.add_person()` to centralize population management.
+
+### Changed
+- Refactored `create_child()` to accept a `Family` parameter.
+- Updated the simulation loop to process families instead of relying on a hardcoded founding family.
+- Removed the remaining hardcoded family dependency from the simulation engine.
+
+### Notes
+- This release focuses on internal refactoring only.
+- Simulation behavior and output remain unchanged.
+- The simulator is now prepared to support multiple families in future releases.
+
+## [0.7.0] - 2026-07-22
+
+### Added
+- Added the new `Family` class to represent the family unit.
+- Added support for tracking children within a family.
+- Added `add_child()` to encapsulate child management.
+- Added `child_count` property for family statistics.
+
+### Changed
+- Updated the simulation engine to maintain a collection of families.
+- Created the initial family for Adam and Eve during simulation initialization.
+- Updated child creation to register each child with its family.
+- Improved the project architecture by separating individual (`Person`) data from family (`Family`) data.
+
+### Notes
+- This release introduces the foundation for family-based simulation while preserving the existing simulation behavior.
+- No changes were made to the simulation output or reproduction logic.
+
+## [0.6.0] - 2026-07-21
+
+### Added
+- Added the initial simulation model documentation.
+- Defined the core architectural concepts of the simulator.
+- Documented the responsibilities of the primary domain objects:
+  - Simulation
+  - Person
+  - Family
+- Added project design principles to guide future development.
+
+### Changed
+- Refined the simulation terminology to better reflect the Genesis narrative.
+- Adopted **Marriage** as the preferred term over **Pairing**.
+- Established **Family** as the central long-lived entity for modeling generational growth.
+- Clarified that data should be owned by the object it logically belongs to (Person vs. Family).
+
+### Notes
+- This release contains design and documentation improvements only.
+- No simulation behavior or functionality changed.
+- These architectural decisions establish the foundation for implementing multi-generational family simulation in future releases.
 
 ## [0.5.0] - 2026-07-21
 
@@ -46,103 +129,24 @@
   - Birth interval
   - End of reproductive years
 
-  ## [0.6.0] - 2026-07-21
-
-### Added
-- Added the initial simulation model documentation.
-- Defined the core architectural concepts of the simulator.
-- Documented the responsibilities of the primary domain objects:
-  - Simulation
-  - Person
-  - Family
-- Added project design principles to guide future development.
-- Added a roadmap section for future life events and simulation enhancements.
+## [0.4.0] - 2026-07-21
 
 ### Changed
-- Refined the simulation terminology to better reflect the Genesis narrative.
-- Adopted **Marriage** as the preferred term over **Pairing**.
-- Established **Family** as the central long-lived entity for modeling generational growth.
-- Clarified that data should be owned by the object it logically belongs to (Person vs. Family).
+- Renamed childbearing configuration to reproduction terminology.
+- Added reproduction_start_age to the Person model.
+- Assigned a reproduction start age when each child is created.
 
-### Notes
-- This release contains design and documentation improvements only.
-- No simulation behavior or functionality changed.
-- These architectural decisions establish the foundation for implementing multi-generational family simulation in future releases.
+### Internal
+- Improved configuration naming for clarity and consistency.
 
-## [0.7.0] - 2026-07-22
+## [0.3.0]
+- Adam and Eve have children.
 
-### Added
-- Added the new `Family` class to represent the family unit.
-- Added support for tracking children within a family.
-- Added `add_child()` to encapsulate child management.
-- Added `child_count` property for family statistics.
+## [0.2.0]
+- Create a Simulation class that advances through the years.
 
-### Changed
-- Updated the simulation engine to maintain a collection of families.
-- Created the initial family for Adam and Eve during simulation initialization.
-- Updated child creation to register each child with its family.
-- Improved the project architecture by separating individual (`Person`) data from family (`Family`) data.
-
-### Notes
-- This release introduces the foundation for family-based simulation while preserving the existing simulation behavior.
-- No changes were made to the simulation output or reproduction logic.
-
-## [0.8.0] - 2026-07-22
-
-### Added
-- Added `Simulation.add_family()` to centralize family management.
-- Added `Simulation.add_person()` to centralize population management.
-
-### Changed
-- Refactored `create_child()` to accept a `Family` parameter.
-- Updated the simulation loop to process families instead of relying on a hardcoded founding family.
-- Removed the remaining hardcoded family dependency from the simulation engine.
-
-### Notes
-- This release focuses on internal refactoring only.
-- Simulation behavior and output remain unchanged.
-- The simulator is now prepared to support multiple families in future releases.
-
-# Changelog
-
-## [v0.9.0] - Sprint 9
-
-### Added
-
-* Dynamic family creation during simulation.
-* Support for second-generation family formation.
-* Family count included in the simulation summary.
-* Methods supporting family creation and marriage candidate selection.
-
-### Changed
-
-* Refactored the simulation architecture to separate responsibilities between `Simulation`, `Person`, and `Family`.
-* Shifted project design from a Genesis-specific simulation toward a reusable population simulation engine.
-* Established that `Family` is responsible for family behavior, while `Simulation` coordinates yearly events.
-* Clarified that future individual preferences and personality traits belong to `Person`.
-
-### Architecture
-
-* Established the guiding principle: **Store facts; calculate decisions.**
-* Defined ownership of responsibilities:
-
-  * `Simulation` advances time and coordinates events.
-  * `Person` represents an individual and will eventually own preferences and personality.
-  * `Family` represents the relationship between spouses and owns family-level behavior.
-* Identified that future reproduction logic should be implemented as family behavior rather than simulation logic.
-
-### Notes
-
-Sprint 9 became an architecture-focused sprint rather than a feature-focused sprint.
-
-The most significant accomplishment was defining a long-term architecture that supports future enhancements without requiring major redesign. This foundation prepares the simulator for features such as:
-
-* Personality traits
-* Family planning behavior
-* Widowhood
-* Remarriage
-* Adoption
-* Configurable reproduction models
-* Additional family lifecycle events
-
-The simulator now supports creating new families beyond the founding family, marking the transition from a single-family simulation to a true multi-generational population simulator.
+## [0.1.0]
+- Initial project structure.
+- Configuration loader.
+- Seed population loader.
+- Person dataclass.

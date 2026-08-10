@@ -35,3 +35,6 @@ class Family:
         """Add a child to the family."""
         self.children.append(child_id)
 
+    def marriage_duration(self, current_year: int) -> int:
+        """Return the number of years this family has been married."""
+        return current_year - self.marriage_year

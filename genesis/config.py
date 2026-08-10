@@ -28,6 +28,11 @@ class Config:
 
     random_seed: int
 
+    preferred_husband_age_min: int | None = None
+    preferred_wife_age_min: int | None = None
+
+    maximum_age_difference: int | None = None
+
 
 def load_config(path: str | Path) -> Config:
     """

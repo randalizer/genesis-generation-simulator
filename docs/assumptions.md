@@ -92,6 +92,8 @@ Default:
 1
 ```
 
+Implemented: The founding family begins childbearing at the configured year.
+
 ---
 
 ## Birth Interval
@@ -103,6 +105,8 @@ Default:
 ```
 2 years
 ```
+
+Implemented: Currently treated as a global interval for all reproducing families.
 
 ---
 
@@ -145,6 +149,8 @@ Planned strategies include:
 - oldest_first
 - random
 
+Implemented: The current code prepares for pairing strategy selection, but the strategy engine is not fully generalized yet.
+
 Additional strategies may be added in future versions.
 
 ---
@@ -154,6 +160,8 @@ Additional strategies may be added in future versions.
 Current assumption:
 
 Every eligible couple produces a child at each birth interval.
+
+Implemented: The simulation currently assumes every eligible family births on schedule.
 
 Future versions may include fertility models.
 

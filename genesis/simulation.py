@@ -8,6 +8,7 @@ from genesis import family
 from genesis.config import Config
 from genesis.person import Person
 from genesis.family import Family
+from genesis.pairing import PairingEngine
 
 
 class Simulation:
@@ -23,6 +24,8 @@ class Simulation:
         self.next_person_number = max(
             int(person.id[1:]) for person in self.population.values()
         )
+
+        self.pairing_engine = PairingEngine.from_config(config)
 
         self.add_family(
             Family(
@@ -49,8 +52,7 @@ class Simulation:
         self.next_person_number += 1
 
         person_id = f"P{self.next_person_number:05d}"
-        name = f"Child-{self.next_person_number:05d}"
-
+        name = f"Person-{self.next_person_number:05d}"
         sex = (
             "M"
             if random.random() < self.config.male_birth_probability
@@ -74,6 +76,7 @@ class Simulation:
             birth_year=self.current_year,
             father_id=family.husband_id,
             mother_id=family.wife_id,
+            reproduction_start_age=reproduction_start_age,
         )
 
         family.add_child(child.id)
@@ -98,11 +101,16 @@ class Simulation:
         eligible: list[Person] = []
 
         for person in self.population.values():
-            age = self.current_year - person.birth_year
+            age = person.age(self.current_year)
 
             if age < self.config.minimum_marriage_age:
                 continue
             if self.is_married(person):
+                continue
+            if (
+                person.reproduction_start_age is not None
+                and not person.can_reproduce(self.current_year)
+            ):
                 continue
 
             eligible.append(person)
@@ -130,22 +138,11 @@ class Simulation:
     def find_family_candidates(self) -> list[tuple[Person, Person]]:
         """Return the list of marriages for the current year."""
 
-        males = sorted(
+        return self.pairing_engine.find_matches(
             self.eligible_males(),
-            key=lambda person: person.birth_year
-        )
-
-        females = sorted(
             self.eligible_females(),
-            key=lambda person: person.birth_year
+            self.current_year,
         )
-
-        marriages: list[tuple[Person, Person]] = []
-
-        for husband, wife in zip(males, females):
-            marriages.append((husband, wife))
-
-        return marriages
 
     def is_married(self, person: Person) -> bool:
         """Return True if the person is already a spouse in a family."""
@@ -189,9 +186,16 @@ class Simulation:
         for year in range(end_year + 1):
             self.current_year = year
 
-            births_this_year: list[Person] = []
+            births_this_year: list[tuple[Person, Family]] = []
+
+            print(f"Year {year:3}  Population: {self.population_count}")
 
             for family in self.families.values():
+                print(
+                    f"    {family.id}: "
+                    f"Married {family.marriage_duration(year)} years"
+                )   
+
                 if (
                     year >= self.config.first_birth_year
                     and (year - self.config.first_birth_year)
@@ -200,17 +204,13 @@ class Simulation:
                 ):
                     child = self.create_child(family)
                     self.add_person(child)
-                    births_this_year.append(child)
+                    births_this_year.append((child, family))
 
-            print(f"Year {year:3}  Population: {self.population_count}")
-
-            for child in births_this_year:
-                sex = "Male" if child.sex == "M" else "Female"
-                print(
-                    f"    Birth: {child.name} ({sex}) "
-                    f"[Reproduction Start Age: "
-                    f"{child.reproduction_start_age}]"
-                )
+                    sex = "Male" if child.sex == "M" else "Female"
+                    print(
+                        f"        Birth: {child.name} ({sex}) "
+                        f"[Family: {family.id}]"
+                    )
 
             # Show when someone first becomes eligible to reproduce.
             for person in self.population.values():
@@ -230,8 +230,11 @@ class Simulation:
                 family = self.create_family(husband, wife)
                 self.add_family(family)
                 print(
-                   f"Created family {family.id}: "
-                   f"{husband.name} + {wife.name}"
+                    f"    Created family {family.id}:"
+                    f"\n        Husband: {husband.name} "
+                    f"(Male, Age {husband.age(year)})"
+                    f"\n        Wife: {wife.name} "
+                    f"(Female, Age {wife.age(year)})"
                 )
 
         print("\nSimulation complete.")
