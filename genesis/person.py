@@ -20,6 +20,12 @@ class Person:
 
     alive: bool = True
 
+    # Physical traits are inherited like DNA and can be extended later.
+    hair_color: str = "brown"
+    hair_tone: int = 5
+    eye_color: str = "brown"
+    eye_shade: int = 5
+
     # Age (in years) when this person begins reproducing.
     # Adam and Eve are special cases and do not use this value.
     reproduction_start_age: int | None = None

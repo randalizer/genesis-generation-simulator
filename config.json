@@ -1,23 +1,95 @@
 {
     "simulation_end_year": 130,
-
     "first_birth_year": 1,
     "birth_interval": 2,
-
     "reproduction_mode": "random",
-
     "minimum_reproduction_start_age": 17,
     "maximum_reproduction_start_age": 25,
     "default_reproduction_start_age": 20,
-
-    "minimum_marriage_age": 18,
-    "preferred_husband_age_min": 20,
-    "preferred_wife_age_min": 17,
-    "maximum_age_difference": 9,
-
+    "minimum_marriage_age": 16,
+    "preferred_husband_age_min": 16,
+    "preferred_wife_age_min": 16,
+    "maximum_age_difference": 15,
     "pairing_strategy": "oldest_first",
-
-    "male_birth_probability": 0.5,
-
+    "male_birth_probability": 0.55,
+    "hair_colors": [
+        "brown",
+        "black",
+        "blonde",
+        "red"
+    ],
+    "eye_colors": [
+        "brown",
+        "blue",
+        "green",
+        "hazel"
+    ],
+    "hair_tone_min": 1,
+    "hair_tone_max": 10,
+    "eye_shade_min": 1,
+    "eye_shade_max": 10,
+    "hair_color_inheritance": {
+        "black": {
+            "black":  { "black": 80, "brown": 0,  "blonde": 10, "red": 10 },
+            "brown":  { "black": 30, "brown": 40, "blonde": 20, "red": 10 },
+            "blonde": { "black": 25, "brown": 25, "blonde": 40, "red": 10 },
+            "red":    { "black": 25, "brown": 20, "blonde": 15, "red": 40 }
+        },
+        "brown": {
+            "brown":  { "brown": 55, "blonde": 25, "red": 15,    "black": 5 },
+            "blonde": { "brown": 55, "blonde": 25, "red": 15,    "black": 5 },
+            "red":    { "brown": 55, "blonde": 20, "red": 20,    "black": 5 }
+        },
+        "blonde": {
+            "blonde": { "blonde": 50, "brown": 35, "red": 10, "black": 5 },
+            "red":    { "blonde": 50, "brown": 20, "red": 20, "black": 10 }
+        },
+        "red": {
+            "red": { "red": 60, "brown": 15, "blonde": 20, "black": 5 }
+        }
+    },
+    "eye_color_inheritance": {
+        "brown": {
+            "brown": { "brown": 70, "blue": 15, "green": 10, "hazel": 5 },
+            "blue":  { "brown": 55, "blue": 25, "green": 10, "hazel": 10},
+            "green": { "brown": 55, "blue": 10, "green": 25, "hazel": 10 },
+            "hazel": { "brown": 45, "blue": 15, "green": 35, "hazel": 5 }
+        },
+        "blue": {
+            "blue": {"blue": 65,"brown": 20,"green": 10,"hazel": 5 },
+            "green": {"blue": 35,"brown": 20,"green": 35,"hazel": 10 },
+            "hazel": { "blue": 30,"brown": 20,"green": 20,"hazel": 30 }
+        },
+        "green": {
+            "green": { "green": 70,"brown": 15,"blue": 10,"hazel": 5 },
+            "hazel": { "green": 30,"brown": 20,"blue": 10,"hazel": 40 }
+        },
+        "hazel": {
+            "hazel": { "hazel": 60,"brown": 20,"green": 15,"blue": 5 }
+        }
+    },
+    "match_partner_hair_color": false,
+    "match_partner_eye_color": false,
+    "preferred_partner_traits": {
+        "hair_color": {
+            "brown":  { "brown": 20, "blonde": 8, "red": 6, "black": 8 },
+            "blonde": { "brown": 8, "blonde": 20, "red": 6, "black": 6 },
+            "red":    { "brown": 6, "blonde": 8, "red": 18, "black": 6 },
+            "black":  { "brown": 8, "blonde": 6, "red": 6, "black": 20 }
+        },
+        "eye_color": {
+            "brown": { "blue": 6, "green": 8, "hazel": 10, "brown": 20 },
+            "blue":  { "blue": 20, "green": 7, "hazel": 6, "brown": 6 },
+            "green": { "blue": 7, "green": 20, "hazel": 8, "brown": 6 },
+            "hazel": { "blue": 5, "green": 8, "hazel": 20, "brown": 10
+            }
+        }
+    },
+    "minimum_preference_score": 8,
+    "preference_score_relaxation_per_year": 2,
+    "preference_score_relaxation_age_start": 18,
+    "spark_min": -15,
+    "spark_max": 15,
+    "pairing_debug": false,
     "random_seed": 42
 }

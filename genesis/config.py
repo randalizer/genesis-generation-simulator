@@ -2,7 +2,7 @@
 Configuration loader.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import json
 from pathlib import Path
 
@@ -23,10 +23,29 @@ class Config:
     minimum_marriage_age: int
 
     pairing_strategy: str
-
     male_birth_probability: float
-
     random_seed: int
+
+    hair_color_inheritance: dict[str, dict[str, dict[str, int]]]
+    eye_color_inheritance: dict[str, dict[str, dict[str, int]]]
+
+    pairing_debug: bool = False
+
+    hair_colors: list[str] = field(default_factory=lambda: ["brown", "black", "blonde", "red"])
+    eye_colors: list[str] = field(default_factory=lambda: ["brown", "blue", "green", "hazel"])
+    hair_tone_min: int = 1
+    hair_tone_max: int = 10
+    eye_shade_min: int = 1
+    eye_shade_max: int = 10
+
+    match_partner_hair_color: bool = False
+    match_partner_eye_color: bool = False
+    preferred_partner_traits: dict[str, dict[str, dict[str, int]]] = field(default_factory=dict)
+    minimum_preference_score: int = 0
+    preference_score_relaxation_per_year: int = 0
+    preference_score_relaxation_age_start: int | None = None
+    spark_min: int = -15
+    spark_max: int = 15
 
     preferred_husband_age_min: int | None = None
     preferred_wife_age_min: int | None = None

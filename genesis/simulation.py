@@ -3,12 +3,18 @@ Simulation engine for the Genesis Generation Simulator.
 """
 
 import random
+import sys
+import termios
+import tty
+
+from collections.abc import Callable
 
 from genesis import family
 from genesis.config import Config
 from genesis.person import Person
 from genesis.family import Family
 from genesis.pairing import PairingEngine
+from genesis.year_result import YearResult
 
 
 class Simulation:
@@ -69,6 +75,18 @@ class Simulation:
                 self.config.maximum_reproduction_start_age,
             )
 
+        father = self.population[family.husband_id]
+        mother = self.population[family.wife_id]
+
+        hair_color = self._inherit_color_trait(
+            father.hair_color,
+            mother.hair_color,
+            self.config.hair_color_inheritance,
+        )
+        hair_tone = self._inherit_hair_tone(father, mother)
+        eye_color = self._inherit_eye_color(father, mother)
+        eye_shade = self._inherit_eye_shade(father, mother)
+
         child = Person(
             id=person_id,
             name=name,
@@ -76,13 +94,90 @@ class Simulation:
             birth_year=self.current_year,
             father_id=family.husband_id,
             mother_id=family.wife_id,
+            hair_color=hair_color,
+            hair_tone=hair_tone,
+            eye_color=eye_color,
+            eye_shade=eye_shade,
             reproduction_start_age=reproduction_start_age,
         )
 
         family.add_child(child.id)
 
         return child
-    
+
+    def _inherit_color_trait(
+        self,
+        father_trait: str,
+        mother_trait: str,
+        inheritance_table: dict[str, dict[str, dict[str, int]]],
+        normalize: Callable | None = None,
+    ) -> str:
+        if normalize is not None:
+            father_trait = normalize(father_trait)
+            mother_trait = normalize(mother_trait)
+
+        if father_trait == mother_trait:
+            return father_trait
+
+        if normalize is not None:
+            father_trait = normalize(father_trait)
+            mother_trait = normalize(mother_trait)
+
+        weights = self._trait_weights(
+            father_trait, mother_trait, inheritance_table
+        )
+        if weights is not None:
+            return self._weighted_choice(list(weights.items()))
+
+        return random.choice([father_trait, mother_trait])
+
+    def _trait_weights(
+        self,
+        father_trait: str,
+        mother_trait: str,
+        inheritance: dict[str, dict[str, dict[str, int]]],
+    ) -> dict[str, int] | None:
+        if father_trait in inheritance:
+            if mother_trait in inheritance[father_trait]:
+                weights = inheritance[father_trait][mother_trait]
+                if sum(weights.values()) > 0:
+                    return weights
+        if mother_trait in inheritance:
+            if father_trait in inheritance[mother_trait]:
+                weights = inheritance[mother_trait][father_trait]
+                if sum(weights.values()) > 0:
+                    return weights
+        return None
+
+    def _weighted_choice(self, options: list[tuple[str, int]]) -> str:
+        total = sum(weight for _, weight in options)
+        pick = random.randrange(total)
+        current = 0
+        for value, weight in options:
+            current += weight
+            if pick < current:
+                return value
+        return options[-1][0]
+
+    def _inherit_hair_tone(self, father: Person, mother: Person) -> int:
+        return random.randint(
+            min(father.hair_tone, mother.hair_tone),
+            max(father.hair_tone, mother.hair_tone),
+        )
+
+    def _inherit_eye_color(self, father: Person, mother: Person) -> str:
+        return self._inherit_color_trait(
+            father.eye_color,
+            mother.eye_color,
+            self.config.eye_color_inheritance,
+        )
+
+    def _inherit_eye_shade(self, father: Person, mother: Person) -> int:
+        return random.randint(
+            min(father.eye_shade, mother.eye_shade),
+            max(father.eye_shade, mother.eye_shade),
+        )
+
     def get_family(self, family_id: str) -> Family:
         """Return a family by its ID."""
         return self.families[family_id]
@@ -107,11 +202,6 @@ class Simulation:
                 continue
             if self.is_married(person):
                 continue
-            if (
-                person.reproduction_start_age is not None
-                and not person.can_reproduce(self.current_year)
-            ):
-                continue
 
             eligible.append(person)
 
@@ -135,7 +225,7 @@ class Simulation:
             if person.sex == "F"
         ]
     
-    def find_family_candidates(self) -> list[tuple[Person, Person]]:
+    def find_family_candidates(self) -> list[tuple[Person, Person, int]]:
         """Return the list of marriages for the current year."""
 
         return self.pairing_engine.find_matches(
@@ -174,8 +264,32 @@ class Simulation:
 
         return family
 
+    def wait_for_key(self) -> None:
+        """Pause until the user presses any key."""
+
+        print("\nPress any key to continue...", end="", flush=True)
+
+        if not sys.stdin.isatty():
+            input()
+            return
+
+        file_descriptor = sys.stdin.fileno()
+        old_settings = termios.tcgetattr(file_descriptor)
+
+        try:
+            tty.setcbreak(file_descriptor)
+            sys.stdin.read(1)
+        finally:
+            termios.tcsetattr(
+                file_descriptor,
+                termios.TCSADRAIN,
+                old_settings,
+            )
+
+        print()
+
     def run(self) -> None:
-        """Run the simulation."""
+        """Run the simulation using the terminal interface."""
 
         random.seed(self.config.random_seed)
 
@@ -184,61 +298,123 @@ class Simulation:
         end_year = self.config.simulation_end_year
 
         for year in range(end_year + 1):
-            self.current_year = year
+            result = self.run_year(year)
 
-            births_this_year: list[tuple[Person, Family]] = []
+            print("=" * 60)
+            print(f"Year {year}")
+            print("=" * 60)
 
-            print(f"Year {year:3}  Population: {self.population_count}")
+            # Display births.
+            for child, family in result.births:
+                sex = "Male" if child.sex == "M" else "Female"
 
-            for family in self.families.values():
                 print(
-                    f"    {family.id}: "
-                    f"Married {family.marriage_duration(year)} years"
-                )   
-
-                if (
-                    year >= self.config.first_birth_year
-                    and (year - self.config.first_birth_year)
-                    % self.config.birth_interval
-                    == 0
-                ):
-                    child = self.create_child(family)
-                    self.add_person(child)
-                    births_this_year.append((child, family))
-
-                    sex = "Male" if child.sex == "M" else "Female"
-                    print(
-                        f"        Birth: {child.name} ({sex}) "
-                        f"[Family: {family.id}]"
-                    )
-
-            # Show when someone first becomes eligible to reproduce.
-            for person in self.population.values():
-                if (
-                    person.reproduction_start_age is not None
-                    and person.age(year)
-                    == person.reproduction_start_age
-                ):
-                    print(
-                        f"    Eligible: {person.name} "
-                        f"(Age {person.age(year)})"
-                    )
-
-            candidates = self.find_family_candidates()
-            print(f"Year {year}: {len(candidates)} family candidates")
-            for husband, wife in candidates:
-                family = self.create_family(husband, wife)
-                self.add_family(family)
+                    f"\nBirth: {child.name} ({sex}) "
+                    f"[Family: {family.id}]"
+                )
                 print(
-                    f"    Created family {family.id}:"
-                    f"\n        Husband: {husband.name} "
-                    f"(Male, Age {husband.age(year)})"
-                    f"\n        Wife: {wife.name} "
-                    f"(Female, Age {wife.age(year)})"
+                    f"    Hair: {child.hair_color} "
+                    f"(Tone {child.hair_tone})"
+                )
+                print(
+                    f"    Eyes: {child.eye_color} "
+                    f"(Shade {child.eye_shade})"
                 )
 
-        print("\nSimulation complete.")
-        print(
-            f"Total population: {self.population_count}  "
-            f"Total families: {len(self.families)}"
-        )
+            # Display marriages.
+            for family in result.families_created:
+                husband = self.population[family.husband_id]
+                wife = self.population[family.wife_id]
+
+                husband_father = self.population.get(husband.father_id)
+                husband_mother = self.population.get(husband.mother_id)
+
+                wife_father = self.population.get(wife.father_id)
+                wife_mother = self.population.get(wife.mother_id)
+
+                print(f"\nFamily Created: {family.id}")
+
+                print(
+                    f"    Husband: {husband.name} "
+                    f"(Male, Age {husband.age(year)})"
+                )
+                print(
+                    f"        Father: "
+                    f"{husband_father.name if husband_father else 'Unknown'}"
+                )
+                print(
+                    f"        Mother: "
+                    f"{husband_mother.name if husband_mother else 'Unknown'}"
+                )
+
+                print(
+                    f"\n    Wife: {wife.name} "
+                    f"(Female, Age {wife.age(year)})"
+                )
+                print(
+                    f"        Father: "
+                    f"{wife_father.name if wife_father else 'Unknown'}"
+                )
+                print(
+                    f"        Mother: "
+                    f"{wife_mother.name if wife_mother else 'Unknown'}"
+                )
+
+            # End-of-year summary.
+            print(f"\nYear {year} Summary")
+            print()
+            print(f"{'Current Year':<25}{'Total':<25}")
+            print(f"{'-' * 20:<25}{'-' * 20:<25}")
+            print(
+                f"{'Births:':<12}{result.birth_count:<13}"
+                f"{'Population:':<15}{result.population_count}"
+            )
+            print(
+                f"{'Marriages:':<12}{result.marriage_count:<13}"
+                f"{'Families:':<15}{result.family_count}"
+            )
+
+            self.wait_for_key()
+            print()
+
+        print("=" * 60)
+        print("Simulation Complete")
+        print("=" * 60)
+        print(f"Total population: {self.population_count}")
+        print(f"Total families:   {len(self.families)}")
+
+    def run_year(self, year: int) -> YearResult:
+        """Run one year of the simulation and return the results."""
+
+        self.current_year = year
+
+        births_this_year: list[tuple[Person, Family]] = []
+        families_created_this_year: list[Family] = []
+
+        # Process births for existing families.
+        for family in list(self.families.values()):
+            if (
+                year >= self.config.first_birth_year
+                and (year - self.config.first_birth_year)
+                % self.config.birth_interval
+                == 0
+            ):
+                child = self.create_child(family)
+                self.add_person(child)
+                births_this_year.append((child, family))
+
+        # Find and create new families.
+        candidates = self.find_family_candidates()
+
+        for husband, wife, score in candidates:
+            family = self.create_family(husband, wife)
+            self.add_family(family)
+            families_created_this_year.append(family)
+
+        return YearResult(
+            year=year,
+            births=births_this_year,
+            families_created=families_created_this_year,
+            population_count=self.population_count,
+            family_count=len(self.families),
+        )        

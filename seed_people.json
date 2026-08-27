@@ -3,12 +3,18 @@
         "id": "P00001",
         "name": "Adam",
         "sex": "M",
-        "birth_year": 0
+        "birth_year": 0,
+        "hair_color": "black",
+        "hair_tone": 2,
+        "eye_color": "brown"
     },
     {
         "id": "P00002",
         "name": "Eve",
         "sex": "F",
-        "birth_year": 0
+        "birth_year": 0,
+        "hair_color": "blonde",
+        "hair_tone": 9,
+        "eye_color": "green"
     }
 ]

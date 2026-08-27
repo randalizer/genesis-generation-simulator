@@ -1,5 +1,41 @@
 # Changelog
 
+## [v0.11.0] - Sprint 11
+
+### Added
+
+- New `YearResult` model for structured yearly simulation results.
+- New `Simulation.run_year()` method to process one simulation year independently of the user interface.
+- New Tkinter graphical interface in `gui.py`.
+- Current Year and Total two-column GUI layout.
+- Scrollable lists for:
+  - Births this year
+  - Families created this year
+  - All people
+  - All families
+- Person detail windows.
+- Family detail windows.
+- `Next Year`, `Run`, and `Pause` simulation controls.
+- Adjustable delay between automatically simulated years.
+
+### Changed
+
+- Separated yearly simulation processing from terminal presentation.
+- Updated terminal simulation flow to use structured yearly results.
+- GUI treats Year 0 as the initial simulation state and begins advancement with Year 1.
+- Person and family detail views can be opened from both current-year and total lists.
+
+### Notes
+
+- Sprint 11 focused on separating simulation logic from presentation and introducing the first graphical interface.
+- The GUI now provides both current-year activity and cumulative simulation data.
+- GUI testing exposed synchronized marriage waves caused by the existing global birth schedule.
+- Family-specific reproduction timing is intentionally deferred to a future sprint.
+
+### Status
+
+**Sprint 11 complete.**
+
 ## [v0.10.0] - Sprint 10
 
 ### Added
