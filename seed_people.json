@@ -6,7 +6,8 @@
         "birth_year": 0,
         "hair_color": "black",
         "hair_tone": 2,
-        "eye_color": "brown"
+        "eye_color": "brown",
+        "desire_for_children": 50
     },
     {
         "id": "P00002",
@@ -15,6 +16,7 @@
         "birth_year": 0,
         "hair_color": "blonde",
         "hair_tone": 9,
-        "eye_color": "green"
+        "eye_color": "green",
+        "desire_for_children": 75
     }
 ]

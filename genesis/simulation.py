@@ -6,6 +6,7 @@ import random
 import sys
 import termios
 import tty
+import csv
 
 from collections.abc import Callable
 
@@ -15,6 +16,7 @@ from genesis.person import Person
 from genesis.family import Family
 from genesis.pairing import PairingEngine
 from genesis.year_result import YearResult
+from pathlib import Path
 
 
 class Simulation:
@@ -52,6 +54,36 @@ class Simulation:
         """Return the current population."""
         return len(self.population)
 
+    def child_desire_score(
+        self,
+        family: Family,
+    ) -> int:
+        """Return the child decision score for a family."""
+
+        husband = self.population[family.husband_id]
+        wife = self.population[family.wife_id]
+
+        combined_desire = (
+            husband.desire_for_children
+            + wife.desire_for_children
+        )
+
+        spark = random.randint(
+            self.config.child_decision_spark_min,
+            self.config.child_decision_spark_max,
+        )
+        return combined_desire + spark
+
+    def family_wants_child(
+        self,
+        family: Family,
+    ) -> bool:
+        """Return True if the family decides to have a child."""
+
+        score = self.child_desire_score(family)
+
+        return score >= self.config.child_decision_threshold
+
     def create_child(self, family: Family) -> Person:
         """Create one child for Adam and Eve."""
 
@@ -63,6 +95,21 @@ class Simulation:
             "M"
             if random.random() < self.config.male_birth_probability
             else "F"
+        )
+
+        desire_for_children = round(
+            random.gauss(
+                self.config.desire_for_children_mean,
+                self.config.desire_for_children_stddev,
+            )
+        )
+
+        desire_for_children = max(
+            self.config.desire_for_children_min,
+            min(
+                self.config.desire_for_children_max,
+                desire_for_children,
+            ),
         )
 
         if self.config.reproduction_mode == "fixed":
@@ -99,6 +146,19 @@ class Simulation:
             eye_color=eye_color,
             eye_shade=eye_shade,
             reproduction_start_age=reproduction_start_age,
+            desire_for_children=desire_for_children,
+        )
+
+        father.desire_for_children = max(
+            0,
+            father.desire_for_children
+            - self.config.desire_reduction_per_child,
+        )
+
+        mother.desire_for_children = max(
+            0,
+            mother.desire_for_children
+            - self.config.desire_reduction_per_child,
         )
 
         family.add_child(child.id)
@@ -291,7 +351,8 @@ class Simulation:
     def run(self) -> None:
         """Run the simulation using the terminal interface."""
 
-        random.seed(self.config.random_seed)
+        if self.config.debug_mode:
+            random.seed(self.config.random_seed)
 
         print("\nStarting simulation...\n")
 
@@ -374,7 +435,7 @@ class Simulation:
                 f"{'Families:':<15}{result.family_count}"
             )
 
-            self.wait_for_key()
+            #self.wait_for_key()
             print()
 
         print("=" * 60)
@@ -393,12 +454,7 @@ class Simulation:
 
         # Process births for existing families.
         for family in list(self.families.values()):
-            if (
-                year >= self.config.first_birth_year
-                and (year - self.config.first_birth_year)
-                % self.config.birth_interval
-                == 0
-            ):
+            if self.family_wants_child(family):
                 child = self.create_child(family)
                 self.add_person(child)
                 births_this_year.append((child, family))
@@ -411,10 +467,47 @@ class Simulation:
             self.add_family(family)
             families_created_this_year.append(family)
 
-        return YearResult(
+        result = YearResult(
             year=year,
             births=births_this_year,
             families_created=families_created_this_year,
             population_count=self.population_count,
             family_count=len(self.families),
-        )        
+        )      
+
+        self.log_year_result(result)
+
+        return result
+      
+    def log_year_result(
+        self,
+        result: YearResult,
+        filename: str = "simulation_yearly.csv",
+    ) -> None:
+        """Append one year's simulation results to a CSV file."""
+
+        file_exists = Path(filename).exists()
+
+        with open(filename, "a", newline="", encoding="utf-8") as file:
+            writer = csv.writer(file)
+
+            if not file_exists:
+                writer.writerow(
+                    [
+                        "year",
+                        "population",
+                        "families",
+                        "births",
+                        "marriages",
+                    ]
+                )
+
+            writer.writerow(
+                [
+                    result.year,
+                    result.population_count,
+                    result.family_count,
+                    result.birth_count,
+                    result.marriage_count,
+                ]
+            )

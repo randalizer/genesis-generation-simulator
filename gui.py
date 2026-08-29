@@ -720,6 +720,7 @@ class SimulatorGUI:
                 f"Eyes: {person.eye_color} "
                 f"(Shade {person.eye_shade})"
             ),
+            f"Desire for Children: {person.desire_for_children}",
         ]
 
         ttk.Label(
@@ -767,7 +768,7 @@ class SimulatorGUI:
 
         window = tk.Toplevel(self.root)
         window.title(family.id)
-        window.geometry("450x400")
+        window.geometry("450x500")
 
         ttk.Label(
             window,
@@ -804,40 +805,38 @@ class SimulatorGUI:
             pady=10,
         )
 
-        if family.children:
-            ttk.Label(
-                window,
-                text="Children",
-                font=("TkDefaultFont", 11, "bold"),
-            ).pack(
-                anchor="w",
-                padx=20,
-                pady=(10, 5),
-            )
+        ttk.Label(
+            window,
+            text="Children",
+            font=("TkDefaultFont", 11, "bold"),
+        ).pack(
+            anchor="w",
+            padx=20,
+            pady=(10, 5),
+        )
 
-            child_list = tk.Listbox(
-                window,
-                height=8,
-            )
+        child_list = tk.Listbox(
+            window,
+            height=10,
+        )
 
-            for child_id in family.children:
-                child = self.simulation.population.get(
-                    child_id
+        for child_id in family.children:
+            child = self.simulation.population.get(child_id)
+
+            if child is not None:
+                sex = "Male" if child.sex == "M" else "Female"
+
+                child_list.insert(
+                    tk.END,
+                    f"{child.name} - {sex} - Born Year {child.birth_year}",
                 )
 
-                if child is not None:
-                    child_list.insert(
-                        tk.END,
-                        f"{child.name} ({child.id})",
-                    )
-
-            child_list.pack(
-                fill="both",
-                expand=True,
-                padx=20,
-                pady=(0, 15),
-            )
-
+        child_list.pack(
+            fill="both",
+            expand=True,
+            padx=20,
+            pady=(0, 15),
+        )
 
 def main() -> None:
     root = tk.Tk()

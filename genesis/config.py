@@ -38,6 +38,17 @@ class Config:
     eye_shade_min: int = 1
     eye_shade_max: int = 10
 
+    desire_for_children_min: int = 0
+    desire_for_children_max: int = 100
+    child_decision_threshold: int = 100
+    desire_reduction_per_child: int = 1
+    child_decision_spark_min: int = -25
+    child_decision_spark_max: int = 25
+    desire_for_children_min: int = 0
+    desire_for_children_max: int = 100
+    desire_for_children_mean: int = 50
+    desire_for_children_stddev: int = 15
+
     match_partner_hair_color: bool = False
     match_partner_eye_color: bool = False
     preferred_partner_traits: dict[str, dict[str, dict[str, int]]] = field(default_factory=dict)
@@ -51,6 +62,7 @@ class Config:
     preferred_wife_age_min: int | None = None
 
     maximum_age_difference: int | None = None
+    debug_mode: bool = False
 
 
 def load_config(path: str | Path) -> Config:

@@ -1,5 +1,43 @@
 # Changelog
 
+## [v0.12.0] - Sprint 12
+
+### Added
+- Added `desire_for_children` as a Person personality trait.
+- Added configurable minimum and maximum desire-for-children values.
+- Added configurable bell-curve generation for newborn desire-for-children values.
+- Added configurable desire-for-children mean and standard deviation.
+- Added yearly family child-decision scoring.
+- Added configurable child-decision threshold.
+- Added configurable child-decision Spark range.
+- Added configurable desire reduction after each child.
+- Added yearly simulation CSV logging.
+- Added `debug_mode` for reproducible simulations using `random_seed`.
+
+### Changed
+- Reproduction decisions are now made independently by each family every year.
+- Removed the old global birth-interval schedule from yearly birth processing.
+- Child decisions now use the combined desire-for-children values of both parents plus a yearly random Spark.
+- Both parents' desire-for-children values decrease after the birth of a child.
+- Newborn desire-for-children values now use a configurable normal distribution instead of a uniform random distribution.
+- Normal simulation runs no longer automatically reset the random number generator to the configured seed.
+- `random_seed` is applied only when `debug_mode` is enabled.
+
+### Fixed
+- Restored child IDs to the Family record when children are created.
+- Restored family child counts and child listings in the GUI.
+- Prevented normal CLI simulations from unintentionally producing identical repeated runs.
+
+### Notes
+- Testing showed that the desire-for-children distribution has a significant effect on long-term population growth.
+- Bell-curve generation reduced the frequency of extreme initial desire values and produced more natural clustering around the configured mean.
+- Independent randomized runs demonstrated substantial population variation caused by compounding early simulation events.
+- Debug mode provides deterministic runs for reproducing and investigating simulation behavior.
+- Performance and scalability work is deferred to Sprint 13.
+
+### Status
+**Sprint 12 complete.**
+
 ## [v0.11.0] - Sprint 11
 
 ### Added

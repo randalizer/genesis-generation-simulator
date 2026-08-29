@@ -26,6 +26,10 @@ class Person:
     eye_color: str = "brown"
     eye_shade: int = 5
 
+    # Personal desire to have children.
+    # This value may change over the person's lifetime.
+    desire_for_children: int = 50
+
     # Age (in years) when this person begins reproducing.
     # Adam and Eve are special cases and do not use this value.
     reproduction_start_age: int | None = None

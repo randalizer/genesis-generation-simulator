@@ -33,6 +33,10 @@ def load_seed_people(filename: str, config: Config) -> dict[str, Person]:
                 "eye_shade",
                 random.randint(config.eye_shade_min, config.eye_shade_max),
             ),
+            desire_for_children=item.get(
+                "desire_for_children",
+                50,
+            ),
         )
         people[person.id] = person
 
