@@ -28,6 +28,8 @@ class Simulation:
         self.families: dict[str, Family] = {}
         self.current_year = 0
 
+        self.married_person_ids: set[str] = set()
+
         # Determine the next available person number.
         self.next_person_number = max(
             int(person.id[1:]) for person in self.population.values()
@@ -179,10 +181,6 @@ class Simulation:
         if father_trait == mother_trait:
             return father_trait
 
-        if normalize is not None:
-            father_trait = normalize(father_trait)
-            mother_trait = normalize(mother_trait)
-
         weights = self._trait_weights(
             father_trait, mother_trait, inheritance_table
         )
@@ -241,10 +239,14 @@ class Simulation:
     def get_family(self, family_id: str) -> Family:
         """Return a family by its ID."""
         return self.families[family_id]
-    
+        
     def add_family(self, family: Family) -> None:
         """Add a family to the simulation."""
+
         self.families[family.id] = family
+
+        self.married_person_ids.add(family.husband_id)
+        self.married_person_ids.add(family.wife_id)
 
     def add_person(self, person: Person) -> None:
         """Add a person to the simulation."""
@@ -284,28 +286,47 @@ class Simulation:
             for person in self.eligible_for_marriage()
             if person.sex == "F"
         ]
+    def eligible_people_by_sex(
+        self,
+    ) -> tuple[list[Person], list[Person]]:
+        """Return eligible unmarried males and females."""
+
+        males: list[Person] = []
+        females: list[Person] = []
+
+        for person in self.population.values():
+            age = person.age(self.current_year)
+
+            if age < self.config.minimum_marriage_age:
+                continue
+            if self.is_married(person):
+                continue
+
+            if person.sex == "M":
+                males.append(person)
+            elif person.sex == "F":
+                females.append(person)
+
+        return males, females    
     
     def find_family_candidates(self) -> list[tuple[Person, Person, int]]:
         """Return the list of marriages for the current year."""
 
-        return self.pairing_engine.find_matches(
-            self.eligible_males(),
-            self.eligible_females(),
-            self.current_year,
+        eligible_males, eligible_females = (
+            self.eligible_people_by_sex()
         )
 
+        return self.pairing_engine.find_matches(
+            eligible_males,
+            eligible_females,
+            self.current_year,
+        )
+    
     def is_married(self, person: Person) -> bool:
         """Return True if the person is already a spouse in a family."""
 
-        for family in self.families.values():
-            if (
-                family.husband_id == person.id
-                or family.wife_id == person.id
-            ):
-                return True
+        return person.id in self.married_person_ids
 
-        return False
-    
     def create_family(
         self,
         husband: Person,

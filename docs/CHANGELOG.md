@@ -1,5 +1,41 @@
 # Changelog
 
+## [v0.13.0] - Sprint 13
+
+### Added
+- Added a direct index of married person IDs for constant-time marriage-status checks.
+- Added a single-pass eligibility scan that collects eligible males and females together.
+- Added a lightweight preference scoring path for normal simulation runs.
+
+### Changed
+- Replaced repeated family scans in `is_married()` with direct set membership.
+- Reduced population scanning during marriage eligibility processing.
+- Removed duplicate sorting of eligible males and females during pairing.
+- Replaced generator-based pairing rule checks with explicit short-circuit loops.
+- Separated normal preference scoring from detailed debug score breakdown generation.
+- Removed redundant trait normalization during inherited color processing.
+
+### Performance
+- Reduced marriage eligibility processing from a major simulation bottleneck to a negligible cost.
+- Reduced unnecessary function calls, population scans, sorting, generator creation, and debug-data allocation.
+- Established a deterministic performance benchmark using `debug_mode` and the configured random seed.
+- Sprint 13 deterministic benchmark at Year 130:
+  - Population: 9,924
+  - Families: 1,853
+  - Function calls: 2,709,621
+  - Profiled runtime: approximately 1.47 seconds.
+- Pairing remains the primary simulation cost and is intentionally deferred for architectural review rather than changing simulation behavior solely for performance.
+
+### Notes
+- Sprint 13 performance changes preserve the existing simulation model.
+- Pairing currently evaluates all valid candidates when preference scoring is enabled in order to select the highest-scoring partner.
+- Future pairing work should distinguish hard marriage eligibility from partner preferences and relationship decision-making.
+- Potential future relationship modeling includes candidate encounters, courtship over time, age preferences rather than strictly fixed age limits, and remarriage behavior.
+- These relationship-model changes are intentionally deferred to a future sprint because they would change simulation behavior rather than simply improve performance.
+
+### Status
+**Sprint 13 complete.**
+
 ## [v0.12.0] - Sprint 12
 
 ### Added

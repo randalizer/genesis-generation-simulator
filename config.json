@@ -1,5 +1,5 @@
 {
-    "debug_mode": false,
+    "debug_mode": true,
     "simulation_end_year": 130,
     "first_birth_year": 1,
     "birth_interval": 2,
@@ -7,7 +7,7 @@
     "minimum_reproduction_start_age": 17,
     "maximum_reproduction_start_age": 25,
     "default_reproduction_start_age": 20,
-    "desire_for_children_min": 0,
+    "desire_for_children_min": 20,
     "desire_for_children_max": 100,
     "child_decision_threshold": 100,
     "child_decision_spark_min": -25,

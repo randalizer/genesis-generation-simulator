@@ -58,17 +58,39 @@ class PreferenceMatchRule:
     preferred_partner_traits: dict[str, dict[str, dict[str, int]]]
 
     def score(self, husband: Person, wife: Person) -> int:
-        _, _, total_score, _ = self.score_breakdown(husband, wife)
+        """Return the combined preference score without a debug breakdown."""
+
+        total_score = 0
+
+        for trait, preferences in self.preferred_partner_traits.items():
+            husband_value = getattr(husband, trait, None)
+            wife_value = getattr(wife, trait, None)
+
+            if husband_value in preferences:
+                total_score += preferences[husband_value].get(
+                    wife_value,
+                    0,
+                )
+
+            if wife_value in preferences:
+                total_score += preferences[wife_value].get(
+                    husband_value,
+                    0,
+                )
+
         return total_score
 
     def score_breakdown(
         self,
         husband: Person,
         wife: Person,
+        include_breakdown: bool = True,
     ) -> tuple[int, int, int, list[tuple[str, str | None, str | None, int, int]]]:
         husband_score = 0
         wife_score = 0
-        breakdown: list[tuple[str, str | None, str | None, int, int]] = []
+        breakdown: list[
+            tuple[str, str | None, str | None, int, int]
+        ] = []
 
         for trait, preferences in self.preferred_partner_traits.items():
             husband_value = getattr(husband, trait, None)
@@ -76,17 +98,39 @@ class PreferenceMatchRule:
 
             husband_points = 0
             wife_points = 0
+
             if husband_value in preferences:
-                husband_points = preferences[husband_value].get(wife_value, 0)
+                husband_points = preferences[husband_value].get(
+                    wife_value,
+                    0,
+                )
+
             if wife_value in preferences:
-                wife_points = preferences[wife_value].get(husband_value, 0)
+                wife_points = preferences[wife_value].get(
+                    husband_value,
+                    0,
+                )
 
             husband_score += husband_points
             wife_score += wife_points
-            breakdown.append((trait, husband_value, wife_value, husband_points, wife_points))
 
-        return husband_score, wife_score, husband_score + wife_score, breakdown
+            if include_breakdown:
+                breakdown.append(
+                    (
+                        trait,
+                        husband_value,
+                        wife_value,
+                        husband_points,
+                        wife_points,
+                    )
+                )
 
+        return (
+            husband_score,
+            wife_score,
+            husband_score + wife_score,
+            breakdown,
+        )
 
 @dataclass(slots=True)
 class PairingEngine:
@@ -158,12 +202,20 @@ class PairingEngine:
         females: list[Person],
         current_year: int,
     ) -> list[tuple[Person, Person, int]]:
-        males = sorted(males, key=lambda person: person.birth_year)
-        females = sorted(females, key=lambda person: person.birth_year)
 
-        if self.strategy == "youngest_first":
-            males = sorted(males, key=lambda person: person.birth_year, reverse=True)
-            females = sorted(females, key=lambda person: person.birth_year, reverse=True)
+        reverse_sort = self.strategy == "youngest_first"
+
+        males = sorted(
+            males,
+            key=lambda person: person.birth_year,
+            reverse=reverse_sort,
+        )
+
+        females = sorted(
+            females,
+            key=lambda person: person.birth_year,
+            reverse=reverse_sort,
+        )
 
         matches: list[tuple[Person, Person, int]] = []
         available_females = list(females)
@@ -191,19 +243,16 @@ class PairingEngine:
         age = husband.age(current_year)
         threshold = self._preference_threshold(age)
 
-        # Only print husband header if we later find a candidate that passes
-        # all rules (user requested debug show only passing candidates).
         printed_husband_header = False
 
         if self.preference_rule is None:
             for wife in candidates:
-                # Evaluate rules first; only print debug for candidates that pass
                 allowed = True
-                failed_rules: list[str] = []
+
                 for rule in self.rules:
                     if not rule.allows(husband, wife, current_year):
                         allowed = False
-                        failed_rules.append(rule.__class__.__name__)
+                        break
 
                 if not allowed:
                     continue
@@ -215,8 +264,6 @@ class PairingEngine:
                         f"    hair={husband.hair_color} tone={husband.hair_tone} "
                         f"eye={husband.eye_color} shade={husband.eye_shade}"
                     )
-                    if self.preference_rule is not None:
-                        print(f"    threshold={threshold}")
 
                 if self.debug:
                     print(
@@ -227,22 +274,20 @@ class PairingEngine:
                     print(
                         f"      rules_pass=True failed=none"
                     )
-
-                if self.debug:
                     print(f"    Selected {wife.name} ({wife.id})")
+
                 return wife, 0
 
         chosen_partner: Person | None = None
         best_score: int | None = None
 
         for wife in candidates:
-            # Evaluate rules first; skip silent for those that fail
             allowed = True
-            failed_rules = []
+
             for rule in self.rules:
                 if not rule.allows(husband, wife, current_year):
                     allowed = False
-                    failed_rules.append(rule.__class__.__name__)
+                    break
 
             if not allowed:
                 continue
@@ -254,8 +299,7 @@ class PairingEngine:
                     f"    hair={husband.hair_color} tone={husband.hair_tone} "
                     f"eye={husband.eye_color} shade={husband.eye_shade}"
                 )
-                if self.preference_rule is not None:
-                    print(f"    threshold={threshold}")
+                print(f"    threshold={threshold}")
 
             if self.debug:
                 print(
@@ -267,19 +311,38 @@ class PairingEngine:
                     f"      rules_pass=True failed=none"
                 )
 
-            husband_score, wife_score, score, breakdown = self.preference_rule.score_breakdown(husband, wife)
-            if self.debug:
+                husband_score, wife_score, score, breakdown = (
+                    self.preference_rule.score_breakdown(
+                        husband,
+                        wife,
+                    )
+                )
+
                 print(
                     f"      husband->wife_score={husband_score} "
                     f"wife->husband_score={wife_score} "
                     f"total_score={score}"
                 )
-                for trait, husband_value, wife_value, husband_points, wife_points in breakdown:
+
+                for (
+                    trait,
+                    husband_value,
+                    wife_value,
+                    husband_points,
+                    wife_points,
+                ) in breakdown:
                     print(
                         f"        {trait}: "
-                        f"husband({husband_value})->wife({wife_value})={husband_points} "
-                        f"wife({wife_value})->husband({husband_value})={wife_points}"
+                        f"husband({husband_value})->wife({wife_value})="
+                        f"{husband_points} "
+                        f"wife({wife_value})->husband({husband_value})="
+                        f"{wife_points}"
                     )
+            else:
+                score = self.preference_rule.score(
+                    husband,
+                    wife,
+                )
 
             final_score = self._final_compatibility_score(score)
 
@@ -293,6 +356,7 @@ class PairingEngine:
             if chosen_partner is None or final_score > best_score:
                 chosen_partner = wife
                 best_score = final_score
+
                 if self.debug:
                     print(
                         f"      new best partner {wife.name} ({wife.id}) "
@@ -305,6 +369,7 @@ class PairingEngine:
                     f"    Selected {chosen_partner.name} ({chosen_partner.id}) "
                     f"score={best_score or 0}"
                 )
+
             return chosen_partner, best_score or 0
 
         return None
